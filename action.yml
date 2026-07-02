@@ -1,0 +1,50 @@
+name: Resilience Quality Gate
+description: Authenticate with the Resilience auth service, create a quality gate run, and wait for its final status.
+author: Swaroop Bhat
+
+inputs:
+  oauth-client-id:
+    description: OAuth client ID used for machine-to-machine authentication.
+    required: true
+  oauth-client-secret:
+    description: OAuth client secret used for machine-to-machine authentication.
+    required: true
+  auth-service-host:
+    description: Base URL for the auth service, for example https://auth.example.com.
+    required: true
+  runtime-service-host:
+    description: Base URL for the runtime service, for example https://runtime.example.com.
+    required: true
+  timeout-seconds:
+    description: Maximum number of seconds to wait for a terminal status.
+    required: false
+    default: "600"
+
+outputs:
+  run-id:
+    description: The quality gate run identifier returned by the runtime service.
+  final-status:
+    description: Final status returned by the runtime service.
+  status-response:
+    description: Final raw status response serialized as JSON.
+  status-report:
+    description: Final markdown report written to the step summary and exposed as an output.
+
+runs:
+  using: docker
+  image: Dockerfile
+  args:
+    - --oauth-client-id
+    - ${{ inputs.oauth-client-id }}
+    - --oauth-client-secret
+    - ${{ inputs.oauth-client-secret }}
+    - --auth-service-host
+    - ${{ inputs.auth-service-host }}
+    - --runtime-service-host
+    - ${{ inputs.runtime-service-host }}
+    - --timeout-seconds
+    - ${{ inputs.timeout-seconds }}
+
+branding:
+  icon: shield
+  color: blue

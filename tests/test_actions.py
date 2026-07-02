@@ -1,0 +1,149 @@
+import json
+import os
+import tempfile
+import unittest
+from datetime import datetime, timedelta, timezone
+from unittest import mock
+
+from src.exceptions import ActionError
+from src.actions import (
+    _append_text,
+    build_status_report,
+    emit_annotation,
+    finalize_run,
+    format_timestamp,
+    write_output,
+    write_step_summary,
+)
+from src.schema import (
+    QualityGateRunCICDStatus,
+    QualityGateRunDecisionEnum,
+    QualityGateRunStatusEnum,
+    SLOStatusEnum,
+)
+
+
+def build_status(*, decision: QualityGateRunDecisionEnum) -> QualityGateRunCICDStatus:
+    return QualityGateRunCICDStatus(
+        run_id=42,
+        quality_gate_id=7,
+        quality_gate_name="production-check",
+        status=QualityGateRunStatusEnum.success,
+        slo_status=SLOStatusEnum.success,
+        decision=decision,
+        is_terminal=True,
+        started_at=datetime(2026, 7, 2, 10, 0, tzinfo=timezone.utc),
+        finished_at=datetime(2026, 7, 2, 10, 5, tzinfo=timezone.utc),
+    )
+
+
+class OutputTests(unittest.TestCase):
+    def test_format_timestamp_returns_dash_for_none(self) -> None:
+        self.assertEqual(format_timestamp(None), "-")
+
+    def test_format_timestamp_normalizes_to_utc(self) -> None:
+        local_time = datetime(2026, 7, 2, 12, 0, tzinfo=timezone(timedelta(hours=2)))
+        self.assertEqual(format_timestamp(local_time), "2026-07-02T10:00:00Z")
+
+    def test_append_text_ignores_missing_path(self) -> None:
+        _append_text(None, "ignored")
+
+    def test_build_status_report_contains_expected_fields(self) -> None:
+        status = build_status(decision=QualityGateRunDecisionEnum.passed)
+
+        report = build_status_report(status)
+
+        self.assertIn("## Resilience Quality Gate", report)
+        self.assertIn("Decision: `passed`", report)
+        self.assertIn("Quality gate: `production-check` (ID `7`)", report)
+        self.assertIn('"run_id": 42', report)
+
+    def test_write_output_noops_without_github_output(self) -> None:
+        with mock.patch.dict(os.environ, {}, clear=True):
+            write_output("name", "value")
+
+    def test_write_step_summary_noops_without_summary_path(self) -> None:
+        with mock.patch.dict(os.environ, {}, clear=True):
+            write_step_summary("summary")
+
+    def test_write_output_and_summary_append_content(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir:
+            output_path = os.path.join(tempdir, "github_output.txt")
+            summary_path = os.path.join(tempdir, "github_summary.md")
+            with mock.patch.dict(
+                os.environ,
+                {
+                    "GITHUB_OUTPUT": output_path,
+                    "GITHUB_STEP_SUMMARY": summary_path,
+                },
+                clear=False,
+            ):
+                write_output("run-id", "42")
+                write_step_summary("hello")
+
+            with open(output_path, encoding="utf-8") as handle:
+                output_text = handle.read()
+            with open(summary_path, encoding="utf-8") as handle:
+                summary_text = handle.read()
+
+        self.assertIn("run-id<<__RESILIENCE_RUN-ID__", output_text)
+        self.assertIn("42", output_text)
+        self.assertEqual(summary_text, "hello\n")
+
+    @mock.patch("builtins.print")
+    def test_emit_annotation_prints_notice_for_passed(self, print_mock: mock.Mock) -> None:
+        emit_annotation(build_status(decision=QualityGateRunDecisionEnum.passed))
+        printed = print_mock.call_args[0][0]
+        self.assertIn("::notice title=Resilience Quality Gate::", printed)
+
+    @mock.patch("builtins.print")
+    def test_emit_annotation_prints_warning_for_pending(self, print_mock: mock.Mock) -> None:
+        emit_annotation(build_status(decision=QualityGateRunDecisionEnum.pending))
+        printed = print_mock.call_args[0][0]
+        self.assertIn("::warning title=Resilience Quality Gate::", printed)
+
+    @mock.patch("builtins.print")
+    def test_emit_annotation_prints_error_for_failed(self, print_mock: mock.Mock) -> None:
+        emit_annotation(build_status(decision=QualityGateRunDecisionEnum.failed))
+        printed = print_mock.call_args[0][0]
+        self.assertIn("::error title=Resilience Quality Gate::", printed)
+
+    def test_finalize_run_writes_outputs_and_summary(self) -> None:
+        status = build_status(decision=QualityGateRunDecisionEnum.passed)
+        with tempfile.TemporaryDirectory() as tempdir:
+            output_path = os.path.join(tempdir, "github_output.txt")
+            summary_path = os.path.join(tempdir, "github_summary.md")
+            with mock.patch.dict(
+                os.environ,
+                {
+                    "GITHUB_OUTPUT": output_path,
+                    "GITHUB_STEP_SUMMARY": summary_path,
+                },
+                clear=False,
+            ):
+                finalize_run(status)
+
+            with open(output_path, encoding="utf-8") as handle:
+                output_text = handle.read()
+            with open(summary_path, encoding="utf-8") as handle:
+                summary_text = handle.read()
+
+        self.assertIn("run-id<<__RESILIENCE_RUN-ID__", output_text)
+        self.assertIn("final-status<<__RESILIENCE_FINAL-STATUS__", output_text)
+        self.assertIn(
+            json.dumps(status.model_dump(mode="json"), separators=(",", ":")),
+            output_text,
+        )
+        self.assertIn("## Resilience Quality Gate", summary_text)
+
+    def test_finalize_run_raises_when_decision_failed(self) -> None:
+        status = build_status(decision=QualityGateRunDecisionEnum.failed)
+
+        with self.assertRaises(ActionError):
+            finalize_run(status)
+
+    def test_finalize_run_raises_when_decision_pending(self) -> None:
+        status = build_status(decision=QualityGateRunDecisionEnum.pending)
+
+        with self.assertRaises(ActionError):
+            finalize_run(status)

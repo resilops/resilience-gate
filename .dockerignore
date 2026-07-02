@@ -1,0 +1,8 @@
+.git
+.idea
+.venv
+tests
+README.md
+__pycache__
+*.pyc
+.pytest_cache
