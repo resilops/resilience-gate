@@ -1,61 +1,15 @@
-# Resilience Quality Gate GitHub Action
+# Resilience Quality Gate
 
-This repository contains a public Docker-based GitHub Action that:
+Run a Resilience quality gate in GitHub Actions and block delivery unless the
+runtime returns `decision=passed`.
 
-1. Exchanges an OAuth client ID and client secret for a machine-to-machine access token.
-2. Creates a quality gate run against the runtime service.
-3. Polls the quality gate run status until it reaches a terminal state or times out.
+This action:
 
-## Inputs
-
-| Name | Required | Default | Description |
-| --- | --- | --- | --- |
-| `oauth-client-id` | Yes | - | OAuth client ID for the token request. |
-| `oauth-client-secret` | Yes | - | OAuth client secret for the token request. |
-| `auth-service-host` | Yes | - | Base URL of the auth service. Must include `http://` or `https://`. |
-| `runtime-service-host` | Yes | - | Base URL of the runtime service. Must include `http://` or `https://`. |
-| `timeout-seconds` | No | `600` | Maximum total wait time before the action fails. |
-
-## Outputs
-
-| Name | Description |
-| --- | --- |
-| `run-id` | Quality gate run ID from the create endpoint response. |
-| `final-status` | Final normalized status reported by the status endpoint. |
-| `status-response` | Final raw status response serialized as compact JSON. |
-| `status-report` | Final markdown report with decision, SLO status, timestamps, and raw response details. |
-
-## Endpoint Contract
-
-The action calls these endpoints:
-
-- `POST /api/v1/m2m/token`
-- `POST /api/v1/cicd/quality-gates/runs`
-- `GET /api/v1/cicd/quality-gates/runs/{run_id}/status`
-
-The quality gate create request is sent with an empty JSON object body: `{}`.
-
-The token request body is:
-
-```json
-{
-  "client_id": "<oauth-client-id>",
-  "client_secret": "<oauth-client-secret>",
-  "grant_type": "client_credentials"
-}
-```
-
-The action expects the token response to contain `access_token`.
-The quality gate create response must include `id`.
-The status response must match the runtime CI/CD schema returned by
-`GET /api/v1/cicd/quality-gates/runs/{run_id}/status`.
-
-When the run completes, the action:
-
-- writes `run-id`, `final-status`, `status-response`, and `status-report` to `GITHUB_OUTPUT`
-- appends a markdown summary to `GITHUB_STEP_SUMMARY`
-- emits a GitHub Actions `notice`, `warning`, or `error` annotation based on the final decision
-- fails the step when the final decision is `failed`
+- authenticates with your Resilience auth service using an OAuth client
+- creates a quality gate run in the runtime service
+- polls the run until it completes or times out
+- writes a readable report to the GitHub Actions step summary
+- fails the step unless the final decision is `passed`
 
 ## Usage
 
@@ -82,25 +36,71 @@ jobs:
           runtime-service-host: https://runtime.example.com
           timeout-seconds: "900"
 
-      - name: Print run metadata
+      - name: Use action outputs
         run: |
           echo "Run ID: ${{ steps.resilience.outputs.run-id }}"
-          echo "Final status: ${{ steps.resilience.outputs.final-status }}"
+          echo "Runtime status: ${{ steps.resilience.outputs.final-status }}"
 ```
 
-## Publishing
+## Inputs
 
-1. Push this repository to GitHub.
-2. Tag a release, for example `v1.0.0`.
-3. Create a major version tag that you can move forward, for example `v1`.
-4. Reference the action from workflows as `owner/repo@v1`.
+| Name | Required | Default | Description |
+| --- | --- | --- | --- |
+| `oauth-client-id` | Yes | - | OAuth client ID for machine-to-machine authentication. |
+| `oauth-client-secret` | Yes | - | OAuth client secret for machine-to-machine authentication. |
+| `auth-service-host` | Yes | - | Base URL of the Resilience auth service. Must include `http://` or `https://`. |
+| `runtime-service-host` | Yes | - | Base URL of the Resilience runtime service. Must include `http://` or `https://`. |
+| `timeout-seconds` | No | `600` | Maximum time to wait for the quality gate to finish. |
 
-## Development
+## Outputs
 
-Run unit tests locally:
+| Name | Description |
+| --- | --- |
+| `run-id` | Quality gate run identifier. |
+| `final-status` | Final runtime execution status. |
+| `status-response` | Final `QualityGateRunCICDStatus` payload as compact JSON. |
+| `status-report` | Markdown report written to the step summary and exposed as an output. |
+
+## Behavior
+
+The action trusts the runtime as the source of truth.
+
+- while the runtime response is non-terminal, the action keeps polling
+- when the runtime finishes, the action succeeds only if `decision=passed`
+- any other final decision causes the step to fail
+
+On completion, the action also:
+
+- writes a report to `GITHUB_STEP_SUMMARY`
+- emits a GitHub Actions annotation with the final decision
+
+## What You See in GitHub Actions
+
+The step summary includes:
+
+- decision
+- execution status
+- SLO status
+- quality gate name and run ID
+- start and finish timestamps
+- the raw final runtime payload
+
+This makes it easy to diagnose why a gate passed or failed without digging
+through raw logs.
+
+## Versioning
+
+For public usage, publish a stable major tag such as `v1` and reference the
+action as:
+
+```yaml
+uses: your-org/resilience-action@v1
+```
+
+## Local Testing
 
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
-.venv/bin/python -m unittest discover -s tests
+.venv/bin/python -m unittest discover -s tests -v
 ```
