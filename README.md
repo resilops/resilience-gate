@@ -6,7 +6,7 @@ runtime returns `decision=passed`.
 This action:
 
 - authenticates with your Resilience auth service using an OAuth client
-- creates a quality gate run in the runtime service
+- creates a Quality Gate Run
 - polls the run until it completes or times out
 - writes a readable report to the GitHub Actions step summary
 - fails the step unless the final decision is `passed`
