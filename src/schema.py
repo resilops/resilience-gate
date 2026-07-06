@@ -1,5 +1,5 @@
-from enum import Enum
 from datetime import datetime, timedelta, timezone
+from enum import Enum
 
 from pydantic import BaseModel, Field, SecretStr
 
@@ -74,14 +74,19 @@ class QualityGateRunCICDStatus(BaseModel):
     quality_gate_id: int = Field(..., description="Quality gate ID")
     quality_gate_name: str = Field(..., description="Quality gate name")
     status: QualityGateRunStatusEnum = Field(..., description="Quality gate run status")
-    reliability_status: ReliabilityStatusEnum = Field(..., description="Quality gate run reliability status")
+    reliability_status: ReliabilityStatusEnum = Field(
+        ..., description="Quality gate run reliability status"
+    )
     decision: QualityGateRunDecisionEnum = Field(
-        ..., description="Quality gate run CI/CD decision",
+        ...,
+        description="Quality gate run CI/CD decision",
     )
     is_terminal: bool = Field(
-        ..., description="Whether the quality gate run has reached a terminal state",
+        ...,
+        description="Whether the quality gate run has reached a terminal state",
     )
     started_at: datetime = Field(..., description="Quality gate run start timestamp")
     finished_at: datetime | None = Field(
-        default=None, description="Quality gate run finish timestamp",
+        default=None,
+        description="Quality gate run finish timestamp",
     )

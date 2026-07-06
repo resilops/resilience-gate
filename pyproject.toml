@@ -20,6 +20,65 @@ pydantic = "^2.13.4"
 pytest = "^9.0.2"
 pytest-cov = "^7.0.0"
 
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = []
+combine_as_imports = true
+include_trailing_comma = true
+multi_line_output = 3
+force_grid_wrap = 0
+use_parentheses = true
+known_third_party = [
+  "IPy",
+  "jwt",
+  "PIL",
+  "boto3",
+  "common",
+  "cryptography",
+  "datadog",
+  "dateutil",
+  "ddtrace",
+  "distutils",
+  "factory",
+  "faker",
+  "freezegun",
+  "gevent",
+  "uvicorn",
+  "github",
+  "kombu",
+  "mock",
+  "parameterized",
+  "pytest",
+  "pythonjsonlogger",
+  "pytz",
+  "redis",
+  "httpx",
+  "setuptools",
+  "fastapi",
+  "pika",
+  "aio_pika",
+  "pydantic_settings",
+  "pydantic",
+  "fastapi_cache",
+  "tenacity",
+  "sqlalchemy",
+  "authlib",
+  "starlette",
+  "contextlib",
+  "jwcrypto"
+]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+select = ["E", "F", "I", "B"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]

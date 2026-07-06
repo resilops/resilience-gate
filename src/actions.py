@@ -89,7 +89,9 @@ def emit_annotation(status: QualityGateRunCICDStatus) -> None:
 def finalize_run(status: QualityGateRunCICDStatus) -> None:
     """Write outputs, summary, and fail the action when the gate blocks delivery."""
 
-    serialized_status = json.dumps(status.model_dump(mode="json"), separators=(",", ":"))
+    serialized_status = json.dumps(
+        status.model_dump(mode="json"), separators=(",", ":")
+    )
     report = build_status_report(status)
 
     write_output("run-id", str(status.run_id))

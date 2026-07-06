@@ -1,4 +1,5 @@
 import time
+
 import requests
 
 from src.exceptions import ActionTimeoutError
@@ -14,7 +15,9 @@ class QualityGateService:
     STATUS_PATH_TEMPLATE = "/api/v1/cicd/quality-gates/runs/{run_id}/status"
 
     def __init__(
-        self, config: ActionConfig, token_service: TokenService,
+        self,
+        config: ActionConfig,
+        token_service: TokenService,
     ) -> None:
         """Initialize the quality gate service with shared config and auth access."""
 
@@ -26,7 +29,8 @@ class QualityGateService:
 
         access_token = self.token_service.refresh_token().access_token
         headers = {
-            **default_headers(), "Authorization": f"Bearer {access_token}",
+            **default_headers(),
+            "Authorization": f"Bearer {access_token}",
         }
         response = requests.request(
             method=method,

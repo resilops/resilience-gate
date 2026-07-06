@@ -1,9 +1,9 @@
 import argparse
 
-from src.exceptions import ActionError
 from src.actions import finalize_run, write_output
-from src.schema import ActionConfig
+from src.exceptions import ActionError
 from src.gate import QualityGateService
+from src.schema import ActionConfig
 from src.token import TokenService
 
 DEFAULT_TIMEOUT_SECONDS = 800
