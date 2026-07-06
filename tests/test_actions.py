@@ -19,7 +19,7 @@ from src.schema import (
     QualityGateRunCICDStatus,
     QualityGateRunDecisionEnum,
     QualityGateRunStatusEnum,
-    SLOStatusEnum,
+    ReliabilityStatusEnum,
 )
 
 
@@ -29,7 +29,7 @@ def build_status(*, decision: QualityGateRunDecisionEnum) -> QualityGateRunCICDS
         quality_gate_id=7,
         quality_gate_name="production-check",
         status=QualityGateRunStatusEnum.success,
-        slo_status=SLOStatusEnum.success,
+        reliability_status=ReliabilityStatusEnum.success,
         decision=decision,
         is_terminal=True,
         started_at=datetime(2026, 7, 2, 10, 0, tzinfo=timezone.utc),

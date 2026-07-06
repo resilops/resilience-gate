@@ -8,7 +8,7 @@ from src.schema import (
     ActionConfig,
     QualityGateRunDecisionEnum,
     QualityGateRunStatusEnum,
-    SLOStatusEnum,
+    ReliabilityStatusEnum,
 )
 
 
@@ -34,7 +34,7 @@ def build_status_payload(*, is_terminal: bool) -> dict:
         "status": QualityGateRunStatusEnum.success.value
         if is_terminal
         else QualityGateRunStatusEnum.executing.value,
-        "slo_status": SLOStatusEnum.success.value,
+        "reliability_status": ReliabilityStatusEnum.success.value,
         "decision": QualityGateRunDecisionEnum.passed.value
         if is_terminal
         else QualityGateRunDecisionEnum.pending.value,

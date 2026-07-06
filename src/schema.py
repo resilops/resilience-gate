@@ -21,7 +21,7 @@ class QualityGateRunDecisionEnum(str, Enum):
     failed = "failed"
 
 
-class SLOStatusEnum(str, Enum):
+class ReliabilityStatusEnum(str, Enum):
     """Quality gate run status identifiers."""
 
     success = "success"
@@ -74,7 +74,7 @@ class QualityGateRunCICDStatus(BaseModel):
     quality_gate_id: int = Field(..., description="Quality gate ID")
     quality_gate_name: str = Field(..., description="Quality gate name")
     status: QualityGateRunStatusEnum = Field(..., description="Quality gate run status")
-    slo_status: SLOStatusEnum = Field(..., description="Quality gate run SLO status")
+    reliability_status: ReliabilityStatusEnum = Field(..., description="Quality gate run reliability status")
     decision: QualityGateRunDecisionEnum = Field(
         ..., description="Quality gate run CI/CD decision",
     )

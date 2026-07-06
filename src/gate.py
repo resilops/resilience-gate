@@ -1,7 +1,7 @@
 import time
 import requests
 
-from src.exceptions import ActionError
+from src.exceptions import ActionTimeoutError
 from src.schema import ActionConfig, QualityGateRunCICDStatus
 from src.token import TokenService
 from src.utils import build_url, default_headers
@@ -57,14 +57,13 @@ class QualityGateService:
         """Poll the status endpoint until completion or effective timeout."""
 
         deadline = time.monotonic() + self.config.timeout_seconds
-
         while True:
             status = self.fetch_status(run_id)
             if status.is_terminal:
                 return status
 
             if time.monotonic() >= deadline:
-                raise ActionError(
+                raise ActionTimeoutError(
                     "Timed out after "
                     f"{self.config.timeout_seconds} seconds waiting for "
                     f"quality gate run {run_id}.",

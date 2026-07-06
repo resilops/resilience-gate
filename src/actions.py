@@ -23,7 +23,7 @@ def build_status_report(status: QualityGateRunCICDStatus) -> str:
         "",
         f"- Decision: `{status.decision.value}`",
         f"- Execution status: `{status.status.value}`",
-        f"- SLO status: `{status.slo_status.value}`",
+        f"- Reliability status: `{status.reliability_status.value}`",
         f"- Terminal: `{str(status.is_terminal).lower()}`",
         f"- Quality gate: `{status.quality_gate_name}` (ID `{status.quality_gate_id}`)",
         f"- Run ID: `{status.run_id}`",
@@ -75,7 +75,7 @@ def emit_annotation(status: QualityGateRunCICDStatus) -> None:
         f"Quality gate '{status.quality_gate_name}' run {status.run_id}: "
         f"decision={status.decision.value}, "
         f"status={status.status.value}, "
-        f"slo_status={status.slo_status.value}"
+        f"reliability_status={status.reliability_status.value}"
     )
     if status.decision == QualityGateRunDecisionEnum.failed:
         print(f"::error title=Resilience Quality Gate::{message}")
@@ -104,5 +104,5 @@ def finalize_run(status: QualityGateRunCICDStatus) -> None:
             "Quality gate did not pass with "
             f"decision={status.decision.value}, "
             f"status={status.status.value}, "
-            f"slo_status={status.slo_status.value}.",
+            f"reliability_status={status.reliability_status.value}.",
         )

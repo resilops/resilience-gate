@@ -80,7 +80,7 @@ The step summary includes:
 
 - decision
 - execution status
-- SLO status
+- reliability status
 - quality gate name and run ID
 - start and finish timestamps
 - the raw final runtime payload
@@ -100,7 +100,6 @@ uses: your-org/resilience-action@v1
 ## Local Testing
 
 ```bash
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-.venv/bin/python -m unittest discover -s tests -v
+poetry install
+poetry run pytest
 ```
