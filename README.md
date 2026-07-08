@@ -1,10 +1,10 @@
 # Resilience Quality Gate
 
-[![Tests](https://github.com/resilops/resilience-action/actions/workflows/test.yaml/badge.svg)](https://github.com/resilops/resilience-action/actions/workflows/test.yaml)
+[![Tests](https://github.com/resilops/resilience-gate/actions/workflows/test.yaml/badge.svg)](https://github.com/resilops/resilience-gate/actions/workflows/test.yaml)
 [![codecov](https://codecov.io/gh/resilops/resilience-gate/graph/badge.svg)](https://codecov.io/gh/resilops/resilience-gate)
-[![Release](https://img.shields.io/github/v/release/resilops/resilience-action)](https://github.com/resilops/resilience-action/releases)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/resilops/resilience-action/blob/main/LICENSE)
-[![Python](https://img.shields.io/badge/python-3.12%2B-blue)](https://github.com/resilops/resilience-action/blob/main/pyproject.toml)
+[![Release](https://img.shields.io/github/v/release/resilops/resilience-gate)](https://github.com/resilops/resilience-gate/releases)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/resilops/resilience-gate/blob/main/LICENSE)
+[![Python](https://img.shields.io/badge/python-3.12%2B-blue)](https://github.com/resilops/resilience-gate/blob/main/pyproject.toml)
 
 Run a Resilience quality gate in GitHub Actions and block delivery unless the
 runtime returns `decision=passed`.
@@ -34,7 +34,7 @@ jobs:
     steps:
       - name: Run resilience quality gate
         id: resilience
-        uses: your-org/resilience-action@v1
+        uses: resilops/resilience-gate@v1
         with:
           oauth-client-id: ${{ secrets.RESILIENCE_OAUTH_CLIENT_ID }}
           oauth-client-secret: ${{ secrets.RESILIENCE_OAUTH_CLIENT_SECRET }}
@@ -54,8 +54,8 @@ jobs:
 | --- | --- | --- | --- |
 | `oauth-client-id` | Yes | - | OAuth client ID for machine-to-machine authentication. |
 | `oauth-client-secret` | Yes | - | OAuth client secret for machine-to-machine authentication. |
-| `auth-service-host` | Yes | - | Base URL of the Resilience auth service. Must include `http://` or `https://`. |
-| `runtime-service-host` | Yes | - | Base URL of the Resilience runtime service. Must include `http://` or `https://`. |
+| `auth-service-host` | Yes | - | Base URL of the Resilience auth service. Must use `https://`. |
+| `runtime-service-host` | Yes | - | Base URL of the Resilience runtime service. Must use `https://`. |
 | `timeout-seconds` | No | `600` | Maximum time to wait for the quality gate to finish. |
 
 ## Outputs
@@ -100,7 +100,7 @@ For public usage, publish a stable major tag such as `v1` and reference the
 action as:
 
 ```yaml
-uses: your-org/resilience-action@v1
+uses: resilops/resilience-gate@v1
 ```
 
 ## Local Testing

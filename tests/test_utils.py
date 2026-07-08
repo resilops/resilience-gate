@@ -16,6 +16,11 @@ def test_build_url_rejects_missing_scheme() -> None:
         build_url("runtime.example.com", "/api/v1/test")
 
 
+def test_build_url_rejects_http_scheme() -> None:
+    with pytest.raises(ActionError):
+        build_url("http://runtime.example.com", "/api/v1/test")
+
+
 def test_default_headers_returns_expected_values() -> None:
     assert default_headers() == {
         "Accept": "application/json",
