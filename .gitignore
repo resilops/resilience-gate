@@ -34,6 +34,8 @@ ckan/public/base/less/custom.less
 # nosetest coverage output
 .coverage
 htmlcov/*
+test_reports
+coverage.xml
 
 # Bot
 /logs

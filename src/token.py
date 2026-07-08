@@ -1,7 +1,8 @@
 import requests
 
+from src.constants import USER_AGENT
 from src.schema import AccessTokenModel, ActionConfig
-from src.utils import build_url, default_headers
+from src.utils import build_url
 
 
 class TokenService:
@@ -37,10 +38,15 @@ class TokenService:
         """Request a new OAuth access token from the auth service."""
         response = requests.post(
             self.token_url,
-            headers=default_headers(),
-            json={
-                "client_id": self.config.oauth_client_id,
-                "client_secret": self.config.oauth_client_secret.get_secret_value(),
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                "User-Agent": USER_AGENT,
+            },
+            auth=(
+                self.config.oauth_client_id,
+                self.config.oauth_client_secret.get_secret_value(),
+            ),
+            data={
                 "grant_type": "client_credentials",
                 "scope": " ".join(self.scopes),
             },

@@ -1,3 +1,4 @@
+from src.constants import USER_AGENT
 from src.exceptions import ActionError
 
 
@@ -16,5 +17,5 @@ def default_headers() -> dict[str, str]:
     return {
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "User-Agent": "resilience-quality-gate-action/1.0.0",
+        "User-Agent": USER_AGENT,
     }
