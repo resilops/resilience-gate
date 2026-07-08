@@ -34,7 +34,7 @@ jobs:
     steps:
       - name: Run resilience quality gate
         id: resilience
-        uses: resilops/resilience-gate@v1
+        uses: resilops/resilience-gate@v1.0.0
         with:
           oauth-client-id: ${{ secrets.RESILIENCE_OAUTH_CLIENT_ID }}
           oauth-client-secret: ${{ secrets.RESILIENCE_OAUTH_CLIENT_SECRET }}
@@ -96,12 +96,14 @@ through raw logs.
 
 ## Versioning
 
-For public usage, publish a stable major tag such as `v1` and reference the
-action as:
+Reference the action with the released tag:
 
 ```yaml
-uses: resilops/resilience-gate@v1
+uses: resilops/resilience-gate@v1.0.0
 ```
+
+If you later publish and maintain a moving major tag such as `v1`, consumers
+can use that tag to receive compatible updates automatically.
 
 ## Local Testing
 
