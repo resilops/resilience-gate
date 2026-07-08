@@ -79,6 +79,11 @@ line-length = 88
 target-version = "py310"
 select = ["E", "F", "I", "B"]
 
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+omit = ["*/tests/*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
@@ -88,4 +93,4 @@ python_files = [
   "*/*_tests.py",
 ]
 norecursedirs = "__pycache__ static .ropeproject"
-addopts = "--cov=src --cov-report=html:./test_reports/html --cov-report=term"
+addopts = "--cov=src --cov-report=xml:coverage.xml --cov-report=term"

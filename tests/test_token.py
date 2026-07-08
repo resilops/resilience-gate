@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from unittest import mock
 
+from src.constants import USER_AGENT
 from src.schema import AccessTokenModel, ActionConfig
 from src.token import TokenService
 
@@ -42,13 +43,11 @@ def test_fetch_token_posts_expected_payload(post_mock: mock.Mock) -> None:
     post_mock.assert_called_once_with(
         "https://auth.example.com/api/v1/m2m/token",
         headers={
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "User-Agent": "resilience-quality-gate-action/1.0.0",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "User-Agent": USER_AGENT,
         },
-        json={
-            "client_id": "client-id",
-            "client_secret": "client-secret",
+        auth=("client-id", "client-secret"),
+        data={
             "grant_type": "client_credentials",
             "scope": "scope-a scope-b",
         },
