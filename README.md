@@ -1,7 +1,7 @@
 # Resilience Quality Gate
 
 [![Tests](https://github.com/resilops/resilience-action/actions/workflows/test.yaml/badge.svg)](https://github.com/resilops/resilience-action/actions/workflows/test.yaml)
-[![codecov](https://codecov.io/gh/resilops/resilience-action/graph/badge.svg)](https://codecov.io/gh/resilops/resilience-action)
+[![codecov](https://codecov.io/gh/resilops/resilience-gate/graph/badge.svg)](https://codecov.io/gh/resilops/resilience-gate)
 [![Release](https://img.shields.io/github/v/release/resilops/resilience-action)](https://github.com/resilops/resilience-action/releases)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/resilops/resilience-action/blob/main/LICENSE)
 [![Python](https://img.shields.io/badge/python-3.12%2B-blue)](https://github.com/resilops/resilience-action/blob/main/pyproject.toml)
