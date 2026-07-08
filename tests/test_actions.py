@@ -58,8 +58,15 @@ def test_build_status_report_contains_expected_fields() -> None:
 
     assert "## Resilience Quality Gate" in report
     assert "Decision: `passed`" in report
-    assert "Quality gate: `production-check` (ID `7`)" in report
-    assert '"run_id": 42' in report
+    assert "Execution status: `success`" in report
+    assert "Reliability status: `success`" in report
+    assert "Quality gate: `production-check`" in report
+    assert "Run ID: `42`" in report
+    assert "Started at: `2026-07-02T10:00:00Z`" in report
+    assert "Finished at: `2026-07-02T10:05:00Z`" in report
+    assert "Duration: `300s`" in report
+    assert "Raw response" not in report
+    assert '"run_id": 42' not in report
 
 
 def test_write_output_noops_without_github_output() -> None:
